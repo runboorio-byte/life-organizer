@@ -200,18 +200,19 @@
       console.log('Sending token to GAS...');
       showStatus('جاري حفظ التوكن...', 'success');
 
-      // Use hidden iframe GET to bypass CORS
-      var iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      iframe.src = GAS_URL + '?action=saveFCMToken&token=' + encodeURIComponent(token);
-      document.body.appendChild(iframe);
+      // sendBeacon with URLSearchParams (form-encoded POST)
+      var params = new URLSearchParams();
+      params.append('action', 'saveFCMToken');
+      params.append('token', token);
+      var sent = navigator.sendBeacon(GAS_URL, params);
 
-      setTimeout(function() {
-        document.body.removeChild(iframe);
-      }, 10000);
-
-      console.log('Token sent via iframe');
-      showStatus('تم تفعيل الإشعارات وحفظ التوكن بنجاح!', 'success');
+      if (sent) {
+        console.log('Token sent via sendBeacon');
+        showStatus('تم تفعيل الإشعارات وحفظ التوكن بنجاح!', 'success');
+      } else {
+        console.error('sendBeacon returned false');
+        showStatus('فشل الإرسال - جرب مرة أخرى', 'error');
+      }
     }
 
     if (window.matchMedia('(display-mode: standalone)').matches) {
