@@ -138,7 +138,7 @@
     <h1>منظّم حياتي</h1>
     <p>تطبيق شامل لإدارة مهامك وصلواتك وأذكارك وتمارينك الرياضية</p>
     
-    <a href="https://script.google.com/macros/s/AKfycbwmWm10PZMcPx4bK70eY70Lbskr2b6hSB_lrygxobVvMQg7-Ga4SG3YZ1Had73h2aHf/exec" class="open-btn">
+    <a href="https://script.google.com/macros/s/AKfycby4YzkCbbZd4xcWLbKcZCPgdqUQ5zhHYTlnR7htSQvn5VWrtIUxKFPFV2X101QEm9vf/exec" class="open-btn">
       افتح التطبيق
     </a>
     
@@ -161,56 +161,79 @@
   </div>
 
   <script>
-    // Firebase configuration - REPLACE with your Firebase config
-const firebaseConfig = {
-  apiKey: "AIzaSyCa8boBzTDq3AQRdni-I3En38d3-5ZaIv4",
-  authDomain: "life-organizer-17dfc.firebaseapp.com",
-  projectId: "life-organizer-17dfc",
-  storageBucket: "life-organizer-17dfc.firebasestorage.app",
-  messagingSenderId: "1039298486965",
-  appId: "1:1039298486965:web:fb16bec088b41a3989d4fc",
-  measurementId: "G-EFTC0G4YPX",
-  vapidKey: "BF-0aAS6H0n8MF8yfRaQmw9IIWqk8O8KkJ-Rs3LQkS6SK_orYiepFpeD5y_hEVTROJQGjyk-EfUVugk_lEawUSQ"
-};
+    var firebaseConfig = {
+      apiKey: "AIzaSyCa8boBzTDq3AQRdni-I3En38d3-5ZaIv4",
+      authDomain: "life-organizer-17dfc.firebaseapp.com",
+      projectId: "life-organizer-17dfc",
+      storageBucket: "life-organizer-17dfc.firebasestorage.app",
+      messagingSenderId: "1039298486965",
+      appId: "1:1039298486965:web:fb16bec088b41a3989d4fc",
+      vapidKey: "BF-0aAS6H0n8MF8yfRaQmw9IIWqk8O8KkJ-Rs3LQkS6SK_orYiepFpeD5y_hEVTROJQGjyk-EfUVugk_lEawUSQ"
+    };
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const messaging = firebase.messaging();
+    var GAS_URL = 'https://script.google.com/macros/s/AKfycby4YzkCbbZd4xcWLbKcZCPgdqUQ5zhHYTlnR7htSQvn5VWrtIUxKFPFV2X101QEm9vf/exec';
 
-    // Check if notifications are supported
-    if ('Notification' in window) {
-      if (Notification.permission === 'default') {
-        document.getElementById('enableNotifications').style.display = 'block';
-      } else if (Notification.permission === 'granted') {
-        getAndSendToken();
+    // Register Service Worker first, then init Firebase
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('firebase-messaging-sw.js')
+        .then(function(reg) {
+          console.log('SW registered, scope:', reg.scope);
+          initFirebase(reg);
+        })
+        .catch(function(err) {
+          console.error('SW registration failed:', err);
+          initFirebase(null);
+        });
+    } else {
+      initFirebase(null);
+    }
+
+    function initFirebase(swReg) {
+      firebase.initializeApp(firebaseConfig);
+      var messaging = firebase.messaging();
+
+      if (swReg) {
+        messaging.useServiceWorker(swReg);
+      }
+
+      // Check permission state
+      if ('Notification' in window) {
+        if (Notification.permission === 'granted') {
+          getAndSendToken(messaging);
+        } else if (Notification.permission === 'default') {
+          document.getElementById('enableNotifications').style.display = 'block';
+        } else {
+          showStatus('الإشعارات محظورة. فعّلها من إعدادات المتصفح', 'error');
+        }
       }
     }
 
-    // Request notification permission
     function requestNotificationPermission() {
-      messaging.requestPermission()
-        .then(function() {
-          return messaging.getToken();
-        })
-        .then(function(token) {
-          console.log('FCM Token:', token);
-          sendTokenToServer(token);
-          showStatus('تم تفعيل الإشعارات بنجاح!', 'success');
-          document.getElementById('enableNotifications').style.display = 'none';
+      Notification.requestPermission()
+        .then(function(permission) {
+          console.log('Permission:', permission);
+          if (permission === 'granted') {
+            document.getElementById('enableNotifications').style.display = 'none';
+            initFirebase(null);
+            showStatus('تم تفعيل الإشعارات بنجاح!', 'success');
+          } else {
+            showStatus('تم رفض الإشعارات', 'error');
+          }
         })
         .catch(function(error) {
-          console.error('Notification permission error:', error);
-          showStatus('فشل في تفعيل الإشعارات', 'error');
+          console.error('Permission error:', error);
+          showStatus('خطأ: ' + error.message, 'error');
         });
     }
 
-    // Get existing token
-    function getAndSendToken() {
-      messaging.getToken()
+    function getAndSendToken(messaging) {
+      messaging.getToken({ vapidKey: firebaseConfig.vapidKey })
         .then(function(token) {
           if (token) {
-            console.log('FCM Token:', token);
+            console.log('FCM Token obtained');
             sendTokenToServer(token);
+          } else {
+            console.log('No token - try requesting permission');
           }
         })
         .catch(function(error) {
@@ -218,45 +241,42 @@ const firebaseConfig = {
         });
     }
 
-    // Send token to GAS server
     function sendTokenToServer(token) {
-      var scriptUrl = 'https://script.google.com/macros/s/AKfycbwmWm10PZMcPx4bK70eY70Lbskr2b6hSB_lrygxobVvMQg7-Ga4SG3YZ1Had73h2aHf/exec';
-      
-      google.script.run
-        .withSuccessHandler(function(response) {
-          console.log('Token saved:', response);
+      console.log('Sending token to GAS...');
+      showStatus('جاري حفظ التوكن...', 'success');
+
+      fetch(GAS_URL + '?action=saveFCMToken&token=' + encodeURIComponent(token))
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+          console.log('Server response:', data);
+          if (data.success) {
+            showStatus('تم تفعيل الإشعارات وحفظ التوكن بنجاح!', 'success');
+          } else {
+            showStatus('تم حفظ التوكن: ' + JSON.stringify(data), 'success');
+          }
         })
-        .withFailureHandler(function(error) {
-          console.error('Save token error:', error);
-        })
-        .saveFCMToken(token);
+        .catch(function(error) {
+          console.error('Error:', error);
+          showStatus('خطأ في الاتصال بالخادم', 'error');
+        });
     }
 
-    // Handle foreground messages
     messaging.onMessage(function(payload) {
       console.log('Foreground message:', payload);
-      const notificationTitle = payload.notification.title;
-      const notificationOptions = {
+      new Notification(payload.notification.title, {
         body: payload.notification.body,
-        icon: '/icon-192.png',
-        badge: '/icon-192.png',
-        tag: payload.data?.tag || 'life-organizer',
-        data: payload.data || {}
-      };
-
-      new Notification(notificationTitle, notificationOptions);
+        icon: '/icon-192.png'
+      });
     });
 
-    // Show status message
     function showStatus(message, type) {
-      var statusEl = document.getElementById('notifStatus');
-      statusEl.textContent = message;
-      statusEl.className = 'status ' + type;
+      var el = document.getElementById('notifStatus');
+      el.textContent = message;
+      el.className = 'status ' + type;
     }
 
-    // Auto-redirect if opened from home screen
     if (window.matchMedia('(display-mode: standalone)').matches) {
-      window.location.href = 'https://script.google.com/macros/s/AKfycbwmWm10PZMcPx4bK70eY70Lbskr2b6hSB_lrygxobVvMQg7-Ga4SG3YZ1Had73h2aHf/exec';
+      window.location.href = GAS_URL;
     }
   </script>
 </body>
