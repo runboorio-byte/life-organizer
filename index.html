@@ -200,19 +200,18 @@
       console.log('Sending token to GAS...');
       showStatus('جاري حفظ التوكن...', 'success');
 
-      // Use image pixel to bypass CORS completely
-      var img = new Image();
-      img.onload = function() {
-        console.log('Token sent via image pixel');
-        showStatus('تم تفعيل الإشعارات وحفظ التوكن بنجاح!', 'success');
-      };
-      img.onerror = function() {
-        // Image load "error" is expected (GAS returns JSON, not image)
-        // But the request was still sent and processed by GAS
-        console.log('Token sent (image response expected to fail)');
-        showStatus('تم تفعيل الإشعارات وحفظ التوكن بنجاح!', 'success');
-      };
-      img.src = GAS_URL + '?action=saveFCMToken&token=' + encodeURIComponent(token);
+      // Use hidden iframe GET to bypass CORS
+      var iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = GAS_URL + '?action=saveFCMToken&token=' + encodeURIComponent(token);
+      document.body.appendChild(iframe);
+
+      setTimeout(function() {
+        document.body.removeChild(iframe);
+      }, 10000);
+
+      console.log('Token sent via iframe');
+      showStatus('تم تفعيل الإشعارات وحفظ التوكن بنجاح!', 'success');
     }
 
     if (window.matchMedia('(display-mode: standalone)').matches) {
