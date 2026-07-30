@@ -32,7 +32,7 @@ self.addEventListener('notificationclick', function(event) {
   console.log('[SW] Notification clicked');
   event.notification.close();
   
-  var appUrl = 'https://script.google.com/macros/s/AKfycby4YzkCbbZd4xcWLbKcZCPgdqUQ5zhHYTlnR7htSQvn5VWrtIUxKFPFV2X101QEm9vf/exec';
+  var appUrl = 'https://runboorio-byte.github.io/life-organizer/';
   
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true })
