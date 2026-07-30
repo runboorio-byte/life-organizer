@@ -19,33 +19,31 @@ messaging.onBackgroundMessage(function(payload) {
   
   var title = (payload.notification && payload.notification.title) || 'منظّم حياتي';
   var body = (payload.notification && payload.notification.body) || '';
-  var url = (payload.data && payload.data.url) || '/';
   
   self.registration.showNotification(title, {
     body: body,
     icon: '/icon-192.png',
     badge: '/icon-192.png',
-    tag: 'life-organizer',
-    data: { url: url }
+    tag: 'life-organizer'
   });
 });
 
 self.addEventListener('notificationclick', function(event) {
-  console.log('[SW] Notification clicked:', event.notification.tag);
+  console.log('[SW] Notification clicked');
   event.notification.close();
   
-  var url = (event.notification.data && event.notification.data.url) || '/';
+  var appUrl = 'https://script.google.com/macros/s/AKfycby4YzkCbbZd4xcWLbKcZCPgdqUQ5zhHYTlnR7htSQvn5VWrtIUxKFPFV2X101QEm9vf/exec';
   
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true })
       .then(function(clientList) {
         for (var i = 0; i < clientList.length; i++) {
-          if (clientList[i].focus) {
+          if (clientList[i].url.indexOf('script.google.com') !== -1 && clientList[i].focus) {
             return clientList[i].focus();
           }
         }
         if (clients.openWindow) {
-          return clients.openWindow(url);
+          return clients.openWindow(appUrl);
         }
       })
   );
