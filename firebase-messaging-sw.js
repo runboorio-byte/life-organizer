@@ -1,74 +1,52 @@
-// Firebase Cloud Messaging Service Worker
 importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js');
 
-// Firebase configuration - REPLACE with your Firebase config
-const firebaseConfig = {
+var firebaseConfig = {
   apiKey: "AIzaSyCa8boBzTDq3AQRdni-I3En38d3-5ZaIv4",
   authDomain: "life-organizer-17dfc.firebaseapp.com",
   projectId: "life-organizer-17dfc",
   storageBucket: "life-organizer-17dfc.firebasestorage.app",
   messagingSenderId: "1039298486965",
-  appId: "1:1039298486965:web:fb16bec088b41a3989d4fc",
-  measurementId: "G-EFTC0G4YPX",
-  vapidKey: "BF-0aAS6H0n8MF8yfRaQmw9IIWqk8O8KkJ-Rs3LQkS6SK_orYiepFpeD5y_hEVTROJQGjyk-EfUVugk_lEawUSQ"
+  appId: "1:1039298486965:web:fb16bec088b41a3989d4fc"
 };
 
-// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-// Initialize Firebase Cloud Messaging
-const messaging = firebase.messaging();
+var messaging = firebase.messaging();
 
-// Handle background messages
 messaging.onBackgroundMessage(function(payload) {
-  console.log('[firebase-messaging-sw.js] Received background message:', payload);
+  console.log('[SW] Background message received:', payload);
   
-  const notificationTitle = payload.notification.title || 'منظّم حياتي';
-  const notificationOptions = {
-    body: payload.notification.body || '',
+  var title = (payload.notification && payload.notification.title) || 'منظّم حياتي';
+  var body = (payload.notification && payload.notification.body) || '';
+  var url = (payload.data && payload.data.url) || '/';
+  
+  self.registration.showNotification(title, {
+    body: body,
     icon: '/icon-192.png',
     badge: '/icon-192.png',
-    tag: payload.data?.tag || 'life-organizer',
-    data: payload.data || {},
-    actions: [
-      { action: 'open', title: 'فتح التطبيق' },
-      { action: 'dismiss', title: 'تجاهل' }
-    ]
-  };
-
-  self.registration.showNotification(notificationTitle, notificationOptions);
+    tag: 'life-organizer',
+    data: { url: url }
+  });
 });
 
-// Handle notification click
 self.addEventListener('notificationclick', function(event) {
-  console.log('[firebase-messaging-sw.js] Notification click:', event);
-  
+  console.log('[SW] Notification clicked:', event.notification.tag);
   event.notification.close();
   
-  if (event.action === 'dismiss') {
-    return;
-  }
-
-  // Open the app
+  var url = (event.notification.data && event.notification.data.url) || '/';
+  
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true })
       .then(function(clientList) {
-        // If app is already open, focus it
-        for (const client of clientList) {
-          if (client.url.includes('script.google.com') && 'focus' in client) {
-            return client.focus();
+        for (var i = 0; i < clientList.length; i++) {
+          if (clientList[i].focus) {
+            return clientList[i].focus();
           }
         }
-        // Otherwise, open new window
         if (clients.openWindow) {
-          return clients.openWindow('/');
+          return clients.openWindow(url);
         }
       })
   );
-});
-
-// Handle notification close
-self.addEventListener('notificationclose', function(event) {
-  console.log('[firebase-messaging-sw.js] Notification closed:', event);
 });
