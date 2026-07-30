@@ -200,19 +200,35 @@
       console.log('Sending token to GAS...');
       showStatus('جاري حفظ التوكن...', 'success');
 
-      // sendBeacon with URLSearchParams (form-encoded POST)
-      var params = new URLSearchParams();
-      params.append('action', 'saveFCMToken');
-      params.append('token', token);
-      var sent = navigator.sendBeacon(GAS_URL, params);
+      // Form POST in hidden iframe — bypasses CORS completely
+      var iframe = document.createElement('iframe');
+      iframe.name = 'fcmFrame';
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
 
-      if (sent) {
-        console.log('Token sent via sendBeacon');
-        showStatus('تم تفعيل الإشعارات وحفظ التوكن بنجاح!', 'success');
-      } else {
-        console.error('sendBeacon returned false');
-        showStatus('فشل الإرسال - جرب مرة أخرى', 'error');
-      }
+      var form = document.createElement('form');
+      form.method = 'POST';
+      form.action = GAS_URL;
+      form.target = 'fcmFrame';
+
+      var f1 = document.createElement('input');
+      f1.type = 'hidden'; f1.name = 'action'; f1.value = 'saveFCMToken';
+      form.appendChild(f1);
+
+      var f2 = document.createElement('input');
+      f2.type = 'hidden'; f2.name = 'token'; f2.value = token;
+      form.appendChild(f2);
+
+      document.body.appendChild(form);
+      form.submit();
+
+      setTimeout(function() {
+        document.body.removeChild(form);
+        document.body.removeChild(iframe);
+      }, 5000);
+
+      console.log('Token sent via form POST iframe');
+      showStatus('تم تفعيل الإشعارات وحفظ التوكن بنجاح!', 'success');
     }
 
     if (window.matchMedia('(display-mode: standalone)').matches) {
