@@ -1,0 +1,27 @@
+{
+  "name": "منظّم حياتي",
+  "short_name": "منظم حياتي",
+  "description": "إدارة المهام والصلاة والتقويم والتمارين",
+  "start_url": "https://SCRIPT_URL",
+  "display": "standalone",
+  "background_color": "#f5f7fa",
+  "theme_color": "#4A90D9",
+  "orientation": "portrait",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": ["productivity", "lifestyle"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
