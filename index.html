@@ -5,21 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>منظّم حياتي</title>
   
-  <!-- PWA Meta Tags -->
   <meta name="theme-color" content="#4A90D9">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="منظم حياتي">
   <meta name="description" content="منظّم حياتي - إدارة المهام والصلاة والتقويم والتمارين">
   
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-192.png">
-  
-  <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json">
   
-  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
   
@@ -35,99 +31,38 @@
       color: white;
       text-align: center;
     }
-    .container {
-      padding: 40px;
-      max-width: 400px;
-    }
+    .container { padding: 40px; max-width: 400px; }
     .logo {
-      width: 120px;
-      height: 120px;
-      margin: 0 auto 20px;
-      border-radius: 30px;
-      background: rgba(255,255,255,0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 48px;
-      font-weight: bold;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      width: 120px; height: 120px; margin: 0 auto 20px; border-radius: 30px;
+      background: rgba(255,255,255,0.2); display: flex; align-items: center;
+      justify-content: center; font-size: 48px; font-weight: bold;
+      backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0,0,0,0.2);
     }
-    h1 {
-      font-size: 28px;
-      margin-bottom: 10px;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-    p {
-      font-size: 16px;
-      opacity: 0.9;
-      margin-bottom: 30px;
-      line-height: 1.6;
-    }
+    h1 { font-size: 28px; margin-bottom: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    p { font-size: 16px; opacity: 0.9; margin-bottom: 30px; line-height: 1.6; }
     .open-btn {
-      display: inline-block;
-      padding: 16px 40px;
-      background: white;
-      color: #4A90D9;
-      text-decoration: none;
-      border-radius: 12px;
-      font-size: 18px;
-      font-weight: bold;
-      transition: transform 0.2s, box-shadow 0.2s;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      display: inline-block; padding: 16px 40px; background: white; color: #4A90D9;
+      text-decoration: none; border-radius: 12px; font-size: 18px; font-weight: bold;
+      transition: transform 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
-    .open-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-    }
-    .features {
-      margin-top: 40px;
-      text-align: right;
-    }
-    .features h3 {
-      font-size: 14px;
-      opacity: 0.8;
-      margin-bottom: 15px;
-    }
-    .feature-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
-    }
-    .feature-tag {
-      padding: 6px 12px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 20px;
-      font-size: 12px;
-      backdrop-filter: blur(5px);
-    }
+    .open-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
     .notification-btn {
-      display: none;
-      margin: 20px auto;
-      padding: 12px 24px;
-      background: #FF9800;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
-      animation: pulse 2s infinite;
+      display: none; margin: 20px auto; padding: 12px 24px;
+      background: #FF9800; color: white; border: none; border-radius: 8px;
+      font-size: 14px; cursor: pointer; animation: pulse 2s infinite;
     }
     @keyframes pulse {
       0% { box-shadow: 0 0 0 0 rgba(255,152,0,0.7); }
       70% { box-shadow: 0 0 0 10px rgba(255,152,0,0); }
       100% { box-shadow: 0 0 0 0 rgba(255,152,0,0); }
     }
-    .status {
-      margin-top: 15px;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 12px;
-      display: none;
-    }
+    .status { margin-top: 15px; padding: 10px; border-radius: 8px; font-size: 12px; display: none; }
     .status.success { background: rgba(76,175,80,0.3); display: block; }
     .status.error { background: rgba(244,67,54,0.3); display: block; }
+    .features { margin-top: 40px; text-align: right; }
+    .features h3 { font-size: 14px; opacity: 0.8; margin-bottom: 15px; }
+    .feature-list { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .feature-tag { padding: 6px 12px; background: rgba(255,255,255,0.2); border-radius: 20px; font-size: 12px; }
   </style>
 </head>
 <body>
@@ -138,7 +73,7 @@
     <h1>منظّم حياتي</h1>
     <p>تطبيق شامل لإدارة مهامك وصلواتك وأذكارك وتمارينك الرياضية</p>
     
-    <a href="https://script.google.com/macros/s/AKfycby4YzkCbbZd4xcWLbKcZCPgdqUQ5zhHYTlnR7htSQvn5VWrtIUxKFPFV2X101QEm9vf/exec" class="open-btn">
+    <a href="https://script.google.com/macros/s/AKfycbwurfQ1WlsJtGwa_laFlJjQ_q8m0n2MN5aEWLcRDvqYSrbP4Ivw02mtp4tsj5tNSSob/exec" class="open-btn">
       افتح التطبيق
     </a>
     
@@ -171,40 +106,51 @@
       vapidKey: "BF-0aAS6H0n8MF8yfRaQmw9IIWqk8O8KkJ-Rs3LQkS6SK_orYiepFpeD5y_hEVTROJQGjyk-EfUVugk_lEawUSQ"
     };
 
-    var GAS_URL = 'https://script.google.com/macros/s/AKfycby4YzkCbbZd4xcWLbKcZCPgdqUQ5zhHYTlnR7htSQvn5VWrtIUxKFPFV2X101QEm9vf/exec';
+    var GAS_URL = 'https://script.google.com/macros/s/AKfycbwurfQ1WlsJtGwa_laFlJjQ_q8m0n2MN5aEWLcRDvqYSrbP4Ivw02mtp4tsj5tNSSob/exec';
+    var fcmMessaging = null;
+    var swRegistration = null;
+
+    function showStatus(message, type) {
+      var el = document.getElementById('notifStatus');
+      el.textContent = message;
+      el.className = 'status ' + type;
+    }
 
     // Register Service Worker first, then init Firebase
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('firebase-messaging-sw.js')
         .then(function(reg) {
           console.log('SW registered, scope:', reg.scope);
-          initFirebase(reg);
+          swRegistration = reg;
+          initFirebaseMessaging();
         })
         .catch(function(err) {
           console.error('SW registration failed:', err);
-          initFirebase(null);
+          showStatus('فشل تسجيل Service Worker: ' + err.message, 'error');
         });
     } else {
-      initFirebase(null);
+      showStatus('المتصفح لا يدعم Service Worker', 'error');
     }
 
-    function initFirebase(swReg) {
-      firebase.initializeApp(firebaseConfig);
-      var messaging = firebase.messaging();
-
-      if (swReg) {
-        messaging.useServiceWorker(swReg);
-      }
-
-      // Check permission state
-      if ('Notification' in window) {
-        if (Notification.permission === 'granted') {
-          getAndSendToken(messaging);
-        } else if (Notification.permission === 'default') {
-          document.getElementById('enableNotifications').style.display = 'block';
-        } else {
-          showStatus('الإشعارات محظورة. فعّلها من إعدادات المتصفح', 'error');
+    function initFirebaseMessaging() {
+      try {
+        if (firebase.apps.length === 0) {
+          firebase.initializeApp(firebaseConfig);
         }
+        fcmMessaging = firebase.messaging();
+
+        if ('Notification' in window) {
+          if (Notification.permission === 'granted') {
+            getAndSendToken();
+          } else if (Notification.permission === 'default') {
+            document.getElementById('enableNotifications').style.display = 'block';
+          } else {
+            showStatus('الإشعارات محظورة. فعّلها من إعدادات المتصفح', 'error');
+          }
+        }
+      } catch (e) {
+        console.error('Firebase init error:', e);
+        showStatus('خطأ في تهيئة Firebase: ' + e.message, 'error');
       }
     }
 
@@ -214,8 +160,7 @@
           console.log('Permission:', permission);
           if (permission === 'granted') {
             document.getElementById('enableNotifications').style.display = 'none';
-            initFirebase(null);
-            showStatus('تم تفعيل الإشعارات بنجاح!', 'success');
+            getAndSendToken();
           } else {
             showStatus('تم رفض الإشعارات', 'error');
           }
@@ -226,18 +171,28 @@
         });
     }
 
-    function getAndSendToken(messaging) {
-      messaging.getToken({ vapidKey: firebaseConfig.vapidKey })
+    function getAndSendToken() {
+      if (!fcmMessaging) {
+        showStatus('Firebase Messaging غير جاهز', 'error');
+        return;
+      }
+      // Pass our own SW registration to prevent Firebase from looking for SW at root
+      fcmMessaging.getToken({ 
+        vapidKey: firebaseConfig.vapidKey,
+        serviceWorkerRegistration: swRegistration 
+      })
         .then(function(token) {
           if (token) {
             console.log('FCM Token obtained');
             sendTokenToServer(token);
           } else {
-            console.log('No token - try requesting permission');
+            console.log('No token returned');
+            showStatus('لم يتم الحصول على توكن', 'error');
           }
         })
         .catch(function(error) {
           console.error('Get token error:', error);
+          showStatus('خطأ في الحصول على التوكن: ' + error.message, 'error');
         });
     }
 
@@ -252,27 +207,13 @@
           if (data.success) {
             showStatus('تم تفعيل الإشعارات وحفظ التوكن بنجاح!', 'success');
           } else {
-            showStatus('تم حفظ التوكن: ' + JSON.stringify(data), 'success');
+            showStatus('تم الحفظ: ' + JSON.stringify(data), 'success');
           }
         })
         .catch(function(error) {
           console.error('Error:', error);
           showStatus('خطأ في الاتصال بالخادم', 'error');
         });
-    }
-
-    messaging.onMessage(function(payload) {
-      console.log('Foreground message:', payload);
-      new Notification(payload.notification.title, {
-        body: payload.notification.body,
-        icon: '/icon-192.png'
-      });
-    });
-
-    function showStatus(message, type) {
-      var el = document.getElementById('notifStatus');
-      el.textContent = message;
-      el.className = 'status ' + type;
     }
 
     if (window.matchMedia('(display-mode: standalone)').matches) {
