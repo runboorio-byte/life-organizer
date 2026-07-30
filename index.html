@@ -19,6 +19,10 @@
   <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json">
   
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
+  
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -98,13 +102,39 @@
       font-size: 12px;
       backdrop-filter: blur(5px);
     }
+    .notification-btn {
+      display: none;
+      margin: 20px auto;
+      padding: 12px 24px;
+      background: #FF9800;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(255,152,0,0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(255,152,0,0); }
+      100% { box-shadow: 0 0 0 0 rgba(255,152,0,0); }
+    }
+    .status {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      display: none;
+    }
+    .status.success { background: rgba(76,175,80,0.3); display: block; }
+    .status.error { background: rgba(244,67,54,0.3); display: block; }
   </style>
 </head>
 <body>
   <div class="container">
-<div style="text-align:center; margin-top:20px;">
-    <img src="icon-192.png" alt="Logo" width="192" height="192">
-</div>
+    <div style="text-align:center; margin-top:20px;">
+      <img src="icon-192.png" alt="Logo" width="192" height="192">
+    </div>
     <h1>منظّم حياتي</h1>
     <p>تطبيق شامل لإدارة مهامك وصلواتك وأذكارك وتمارينك الرياضية</p>
     
@@ -112,31 +142,117 @@
       افتح التطبيق
     </a>
     
+    <button id="enableNotifications" class="notification-btn" onclick="requestNotificationPermission()">
+      🔔 تفعيل الإشعارات
+    </button>
+    <div id="notifStatus" class="status"></div>
+    
     <div class="features">
       <h3>المميزات</h3>
       <div class="feature-list">
-        <span class="feature-tag">tasks</span>
-        <span class="feature-tag">salat</span>
-        <span class="feature-tag">adhkar</span>
-        <span class="feature-tag">workout</span>
-        <span class="feature-tag">quran</span>
-        <span class="feature-tag">calendar</span>
+        <span class="feature-tag">مهام</span>
+        <span class="feature-tag">صلاة</span>
+        <span class="feature-tag">أذكار</span>
+        <span class="feature-tag">تمارين</span>
+        <span class="feature-tag">قرآن</span>
+        <span class="feature-tag">تقويم</span>
       </div>
     </div>
   </div>
 
   <script>
-    // Service Worker Registration
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js')
-        .then(function(registration) {
-          console.log('SW registered:', registration.scope);
+    // Firebase configuration - REPLACE with your Firebase config
+    const firebaseConfig = {
+  apiKey: "AIzaSyCa8boBzTDq3AQRdni-I3En38d3-5ZaIv4",
+  authDomain: "life-organizer-17dfc.firebaseapp.com",
+  projectId: "life-organizer-17dfc",
+  storageBucket: "life-organizer-17dfc.firebasestorage.app",
+  messagingSenderId: "1039298486965",
+  appId: "1:1039298486965:web:fb16bec088b41a3989d4fc",
+  measurementId: "G-EFTC0G4YPX"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const messaging = firebase.messaging();
+
+    // Check if notifications are supported
+    if ('Notification' in window) {
+      if (Notification.permission === 'default') {
+        document.getElementById('enableNotifications').style.display = 'block';
+      } else if (Notification.permission === 'granted') {
+        getAndSendToken();
+      }
+    }
+
+    // Request notification permission
+    function requestNotificationPermission() {
+      messaging.requestPermission()
+        .then(function() {
+          return messaging.getToken();
+        })
+        .then(function(token) {
+          console.log('FCM Token:', token);
+          sendTokenToServer(token);
+          showStatus('تم تفعيل الإشعارات بنجاح!', 'success');
+          document.getElementById('enableNotifications').style.display = 'none';
         })
         .catch(function(error) {
-          console.log('SW registration failed:', error);
+          console.error('Notification permission error:', error);
+          showStatus('فشل في تفعيل الإشعارات', 'error');
         });
     }
-    
+
+    // Get existing token
+    function getAndSendToken() {
+      messaging.getToken()
+        .then(function(token) {
+          if (token) {
+            console.log('FCM Token:', token);
+            sendTokenToServer(token);
+          }
+        })
+        .catch(function(error) {
+          console.error('Get token error:', error);
+        });
+    }
+
+    // Send token to GAS server
+    function sendTokenToServer(token) {
+      var scriptUrl = 'https://script.google.com/macros/s/AKfycbwurfQ1WlsJtGwa_laFlJjQ_q8m0n2MN5aEWLcRDvqYSrbP4Ivw02mtp4tsj5tNSSob/exec';
+      
+      google.script.run
+        .withSuccessHandler(function(response) {
+          console.log('Token saved:', response);
+        })
+        .withFailureHandler(function(error) {
+          console.error('Save token error:', error);
+        })
+        .saveFCMToken(token);
+    }
+
+    // Handle foreground messages
+    messaging.onMessage(function(payload) {
+      console.log('Foreground message:', payload);
+      const notificationTitle = payload.notification.title;
+      const notificationOptions = {
+        body: payload.notification.body,
+        icon: '/icon-192.png',
+        badge: '/icon-192.png',
+        tag: payload.data?.tag || 'life-organizer',
+        data: payload.data || {}
+      };
+
+      new Notification(notificationTitle, notificationOptions);
+    });
+
+    // Show status message
+    function showStatus(message, type) {
+      var statusEl = document.getElementById('notifStatus');
+      statusEl.textContent = message;
+      statusEl.className = 'status ' + type;
+    }
+
     // Auto-redirect if opened from home screen
     if (window.matchMedia('(display-mode: standalone)').matches) {
       window.location.href = 'https://script.google.com/macros/s/AKfycbwurfQ1WlsJtGwa_laFlJjQ_q8m0n2MN5aEWLcRDvqYSrbP4Ivw02mtp4tsj5tNSSob/exec';
